@@ -12,6 +12,7 @@ import java.net.URLEncoder;
 @NoArgsConstructor @Builder
 @AllArgsConstructor
 public class RequestPageDTO {
+    //처음 페이지 처리
 
     // 기본적으로 1인데
     // @Builder.Default 사용해서
