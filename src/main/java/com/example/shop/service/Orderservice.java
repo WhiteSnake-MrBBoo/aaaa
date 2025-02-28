@@ -37,7 +37,7 @@ public class Orderservice {
                 .orElseThrow(EntityExistsException::new);
 
         //참조될 회원
-        Members members = membersRepository.findByEmail(email);
+        Members members = membersRepository.findByEmail(email); //멤버에 Entity안에 Email값만 가져온다.
 
 
 
@@ -109,7 +109,7 @@ public class Orderservice {
                     //대표이미지 라면
                     if(imgEntity.getRepimgYn() !=null && imgEntity.getRepimgYn().equals("Y")){
                         OrderItemDTO orderItemDTO
-                                = new OrderItemDTO(entity , imgEntity.getImgUrl() + imgEntity.getImgName());
+                                = new OrderItemDTO(entity , imgEntity.getImgName());
 
                         orderHistDTO.addOrderItemDTO(orderItemDTO);
 

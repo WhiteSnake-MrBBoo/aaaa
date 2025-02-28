@@ -30,6 +30,7 @@ public class SecurityConfig  {
                                 .requestMatchers("/user/login/**", "/user/signUp" , "/css/**", "/js/**" , "/").permitAll()
                                 //권한이 ADMIN인사람은 해당페이지에 접속가능
                                 .requestMatchers(  "/admin/item/**").hasRole("ADMIN")
+                                .requestMatchers(  "/orders/**").authenticated()    //로그인 되어있어먄 하는 주소
 
 
 

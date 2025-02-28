@@ -29,7 +29,14 @@ class OrderserviceTest {
         orderservice.getOrderList("1212@1212",requestPageDTO);
 
 
-        responesPageDTO.getDtoList().forEach(orderHistDTO -> log.info(orderHistDTO));
+        if(responesPageDTO.getDtoList() ==  null){
+            log.info("주문 목록이 없습니다. ");
+
+        }else {
+            responesPageDTO.getDtoList().forEach(orderHistDTO -> log.info(orderHistDTO));
+
+
+        }
 
     }
 
