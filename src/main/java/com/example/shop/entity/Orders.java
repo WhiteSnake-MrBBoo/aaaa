@@ -37,7 +37,7 @@ public class Orders extends BaseTimeEntity {
     @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)     //연관관계의 주인인 (자식객체 Foreign Key
                                         //달아준 아이) 테이블에서 참조하는 부모의
                                         //클래스명과 변수명중 변수
-    private List<OrderItem> orderItems = new ArrayList<>();
+    private List<OrderItem> orderItems = new ArrayList<>(); //양방향
 
 
 

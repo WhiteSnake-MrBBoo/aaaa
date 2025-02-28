@@ -80,7 +80,7 @@
                   <div class="row mb-3">
                     <div class="col-4 text-end">
                       <th:block th:if="${itemDTO.itemSellStatus.name() == 'SELL'}">
-                        <button class="btn btn-dark">장바구니담기</button>
+                        <button class="btn btn-dark cartadd" th:value="${itemDTO.id}">장바구니담기</button>
                         <button class="btn btn-dark order" th:value="${itemDTO.id}" onclick="orders()">주문하기</button>
 
                       </th:block>
@@ -153,12 +153,14 @@
       </div>
     </div>
     <script th:inline="javascript">
-      var price =[[${itemDTO.price}]]
+      let price =[[${itemDTO.price}]]
 
       let order = $('.order') //버튼
       let count = $("#count") //수량
+      let cartadd = $(".cartadd") //장바구니 담기
 
       $(document).ready(function () {
+
         $("#count").on("change",function () {
 
           let count = $(this).val()
@@ -170,9 +172,58 @@
       })
 
 
+      //카드 아이템
+      cartadd.on("click",function () {
+        cart()
+
+      })
+      //카트 아이템 장바구니
+      function cart() {
+        //장바구니 버튼을 눌렀을때 작동하는 함수
+        //특정주소로, 아이템 번호화, 수량을 넘겨준다.
+        let paramData = { itemId : order.val() ,count:count.val()}
+
+        console.log(paramData)
+
+
+
+        //데이터를 보낸다.
+        $.ajax({
+          url : "/cart",
+          type : "post",
+          data : paramData,
+          datatype : "json" , //반환타입
+          success : function (data) {
+
+            console.log(data)
+            alert(data + "번 아이템이 담겼습니다.")
+
+
+          },
+          error : function (jqxHR, status,error) {
+
+            if (jqxHR.status == '401'){
+              alert("로그인 이용하세요")
+              alert(jqxHR.responseText)
+              location.href = "/user/login" ; //401 로그인 안되어 있을때 로그인 페이지로
+            }else {
+              alert(jqxHR.responseText) //에러대 대한 내용 출력
+            }
+
+          }
+
+        })
+
+
+
+      }
+
+
       function orders() {
         //넘길 객체 생성
         let paramData = { itemId : order.val() ,count:count.val()}
+
+        console.log(paramData)
 
         //자바스크립트의 객체 형태가 > jsson 형태로 변환
         // let a = JSON.stringify(paramate);
@@ -191,13 +242,14 @@
             location.href = "/"
 
           },
-          error : function (jpxHr, status,error) {
+          error : function (jqxHR, status,error) {
 
-            if (jpxHr.status == '401'){
+            if (jqxHR.status == '401'){
               alert("로그인 이용하세요")
+              alert(jqxHR.responseText)
               location.href = "/user/login" ; //401 로그인 안되어 있을때 로그인 페이지로
             }else {
-              alert(jpxHr.responseText) //에러대 대한 내용 출력
+              alert(jqxHR.responseText) //에러대 대한 내용 출력
             }
 
           }

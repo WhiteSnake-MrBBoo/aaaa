@@ -3,11 +3,13 @@ package com.example.shop.service;
 import com.example.shop.dto.OrderHistDTO;
 import com.example.shop.dto.RequestPageDTO;
 import com.example.shop.dto.ResponesPageDTO;
+import com.example.shop.repository.OrdersRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,6 +21,28 @@ class OrderserviceTest {
     @Autowired
     Orderservice orderservice;
 
+    @Autowired
+    OrdersRepository ordersRepository;
+
+
+    @Test
+    @Transactional
+    @Rollback(value = false)
+    public  void  cancelOrder(){
+
+        Long pk = 1L;
+
+        orderservice.cancleOrder(pk);
+
+        log.info(
+                ordersRepository.findById(pk)
+        );
+
+
+    }
+
+
+
     @Test
     @Transactional
     public void List(){
@@ -29,7 +53,14 @@ class OrderserviceTest {
         orderservice.getOrderList("1212@1212",requestPageDTO);
 
 
-        responesPageDTO.getDtoList().forEach(orderHistDTO -> log.info(orderHistDTO));
+        if(responesPageDTO.getDtoList() ==  null){
+            log.info("주문 목록이 없습니다. ");
+
+        }else {
+            responesPageDTO.getDtoList().forEach(orderHistDTO -> log.info(orderHistDTO));
+
+
+        }
 
     }
 

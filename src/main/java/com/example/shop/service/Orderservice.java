@@ -37,7 +37,7 @@ public class Orderservice {
                 .orElseThrow(EntityExistsException::new);
 
         //참조될 회원
-        Members members = membersRepository.findByEmail(email);
+        Members members = membersRepository.findByEmail(email); //멤버에 Entity안에 Email값만 가져온다.
 
 
 
@@ -109,7 +109,7 @@ public class Orderservice {
                     //대표이미지 라면
                     if(imgEntity.getRepimgYn() !=null && imgEntity.getRepimgYn().equals("Y")){
                         OrderItemDTO orderItemDTO
-                                = new OrderItemDTO(entity , imgEntity.getImgUrl() + imgEntity.getImgName());
+                                = new OrderItemDTO(entity , imgEntity.getImgName());
 
                         orderHistDTO.addOrderItemDTO(orderItemDTO);
 
@@ -124,5 +124,63 @@ public class Orderservice {
         return new ResponesPageDTO(requestPageDTO,orderHistDTOList,(int) ordersPage.getTotalElements());
 
     }
+
+    //주문취소
+    public void cancleOrder(Long orderId){
+
+        //주문취소하려는 주문을 Pk로 불러와서
+        Orders orders =
+        ordersRepository.findById(orderId).orElseThrow(EntityExistsException::new);
+
+        //주문의 주문상태를 취소상태로 변경
+
+        if (orders.getOrderStatus() == OrderStatus.ORDER){
+            orders.setOrderStatus( OrderStatus.CANCEL);
+
+            //주문의 주문 아이템들의 수량만큰 재고를 더해준다.
+            List<OrderItem> orderItemList = orders.getOrderItems();
+
+            for ( OrderItem orderItem: orderItemList){
+
+//            orderItem.getCount() ;  //주문수량
+//            orderItem.getItem().getStockNumber();   //재고수량
+
+                orderItem.getItem().setStockNumber(
+                        orderItem.getItem().getStockNumber()
+                                +orderItem.getCount()
+                );
+            }
+
+        }
+
+
+
+    }
+
+
+
+    //자신이 주문한 내역인지 확인 하는 메소드
+    public boolean validateOrder(Long orderId,String email){
+
+        Members members =
+        membersRepository.findByEmail(email);   //select * from members where email = :email
+
+        Orders orders =
+        ordersRepository.findById(orderId)
+                .orElseThrow(EntityExistsException::new); //주문목을을 찾아온다.
+                                //select * from orders where order_ie = :orderid
+
+        Members savemember =
+        orders.getMembers();
+
+        //현재 로그인 사용자와 현재 주문의 참조하는회원이 같지 않다면
+        if ( !members.getEmail().equals(savemember.getEmail())){
+            return false;
+
+        }
+        return true;
+
+    }
+
 
 }
