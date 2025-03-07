@@ -1,6 +1,7 @@
 package com.example.shop.service;
 
 
+import com.example.shop.dto.CartDetailDTO;
 import com.example.shop.dto.CartItemDTO;
 import com.example.shop.entity.Cart;
 import com.example.shop.entity.CartItem;
@@ -15,6 +16,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -85,8 +90,96 @@ public class CartService {
         }
 
 
+
+
+    }
+
+    public List<CartDetailDTO> getCartList(String email){
+
+
+
+        List<CartDetailDTO> cartDetailDTOList =
+                cartItemRepository.findByCartDetailDTOList(email);
+
+        return cartDetailDTOList;
+    }
+
+    //카트의 주인 확인
+
+    public boolean validateCartItem(Long cartItemId,String email){
+
+
+        Members members = membersRepository.findByEmail(email);
+
+        //현재 컨트롤러로 부터 넘겨받은 카트아이템의 아이딜르 통해서
+        //카트 아이템을 찾는다면,
+        Optional<CartItem> optionalCartItem=
+        cartItemRepository.findById(cartItemId);
+
+        CartItem cartItem = optionalCartItem.orElseThrow(EntityNotFoundException::new);
+
+        //카트아이템이 담긴 카트를 찾을수 있고
+        Cart cart =
+                cartItem.getCart();
+
+        //카트가 참조하는 멤버를 찾을수 잇다.
+        Members cartMember = cart.getMembers();
+
+        //현재초그인한 회원과 , 카트가 참조 하는 회원의 pk번고하가 일치하느가 ?
+        //혹은 유일한값인 email이 일치하는가 ?
+        //select* from cartItem
+            //join cart on cartItem.cart_id = cart.cart_id
+            //join member on cart.member_id = member.member_id
+        //where member.email = 현재 넘겨받은 email
+        //and cartItem.cartItem_id == 넘겨받은 cartItemId
+        if(members.getNum() == cartMember.getNum()){
+
+            return true;
+        }else {
+            return false;
+        }
     }
 
 
 
-}
+    public void updateCartItemCount(Long cartItemId,int count){
+
+
+            //select * from cartItem where cart.cart_id
+            CartItem cartItem =
+                cartItemRepository.findById(cartItemId)
+                        .orElseThrow(EntityNotFoundException::new);
+
+        cartItem.setCount(count);
+
+        cartItemRepository.save(cartItem);
+
+
+    }
+
+    //삭제
+
+    public void cartItemDel (Long cartItemId) {
+        log.info("서비스로 들어온 pk:" + cartItemId);
+
+
+        //들어온 pk를 가지고 데이터 삭제
+        //delete from cartItem where cartItem_id = 파라미터로 들어온간
+
+        CartItem cartItem =
+        cartItemRepository.findById(cartItemId)
+
+                .orElseThrow(EntityNotFoundException::new);
+
+        cartItemRepository.delete(cartItem); //삭제
+
+
+
+    }}
+
+
+
+
+
+
+

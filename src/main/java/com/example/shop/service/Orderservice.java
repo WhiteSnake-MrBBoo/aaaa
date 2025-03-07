@@ -5,6 +5,7 @@ import com.example.shop.constant.OrderStatus;
 import com.example.shop.dto.*;
 import com.example.shop.entity.*;
 import com.example.shop.exception.OutofStockException;
+import com.example.shop.repository.CartItemRepository;
 import com.example.shop.repository.ItemRepository;
 import com.example.shop.repository.MembersRepository;
 import com.example.shop.repository.OrdersRepository;
@@ -29,6 +30,8 @@ public class Orderservice {
     private final MembersRepository membersRepository;
 
     private final ItemRepository itemRepository;
+
+    private final CartItemRepository cartItemRepository;
 
     public Long order(OrderDTO orderDTO,String email){
         //참조될 아이템 찾기
@@ -179,6 +182,69 @@ public class Orderservice {
 
         }
         return true;
+
+    }
+
+    public void orders(Long[] cartItemIdList,String email){
+        //참조될 회원찾기
+
+        Members members = membersRepository.findByEmail(email);
+
+        //주문을 만들자
+
+        Orders orders = new Orders();   //주문
+        orders.setMembers(members); //주문이 참조하는 회원
+        orders.setOrderStatus(OrderStatus.ORDER);   //주문 상태
+
+
+        List<OrderItem> orderItemList =new ArrayList<>();
+        //아이템을 찾기위해서 cartitem을 찾자
+        for (Long cartItemId : cartItemIdList){
+
+            CartItem cartItem =
+            cartItemRepository.findById(cartItemId).orElseThrow(EntityExistsException::new);
+
+            Item item =
+            cartItem.getItem(); //카트아이템이 참조되는 아이템
+
+            //주문 아이템 entity만들기
+
+            OrderItem orderItem = new OrderItem();
+            orderItem.setItem(item);    //참조하는 아이템
+            //주문수량은
+            orderItem.setCount(cartItem.getCount());
+            //주문가격은
+            orderItem.setOrderPrice(item.getPrice());
+
+            //참조하는 주문
+            orderItem.setOrders(orders);
+
+            //주문을 넣었다면
+            cartItemRepository.delete(cartItem);
+
+
+            //주문리스트에 넣어준다.
+            orderItemList.add(orderItem);
+
+            //아이템의 재고수량을 변경해야한다.
+            //아이템을 장바구니에 넣었을때는 산게 아니고  아이템을 주문하기 한다면
+            //기존 재고를 변경해야한다.
+            item.orderStockNumber(cartItem.getCount());
+            //entity의 값이 변경이 되었기 때문에 update 수행
+
+
+        }
+
+        orders.setOrderItems(orderItemList);
+
+        ordersRepository.save(orders);
+
+
+        //참조될 아이템을 찾기
+        //
+
+
+
 
     }
 
