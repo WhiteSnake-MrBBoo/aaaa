@@ -22,11 +22,8 @@
         <h4 >[[${dto.orderDate + ' 주문'}]]
 
           <th:block th:if="${dto.orderStatus.name() == 'ORDER'}">
-
-            <button type="submit" th:value="${dto.orderId}" class="btn btn-warning orderCancel">주문취소</button>
           </th:block>
           <th:block th:if="${dto.orderStatus.name() == 'CANCEL'}">
-
             <span>(취소완료)</span>
           </th:block>
 
@@ -73,47 +70,6 @@
 
 </th:block>
 
-  <script>
-
-   let orderCancel = $('.orderCancel')
-    //let orderCancel = document.querySelector('.orderCancel');
-
-  orderCancel.on("click",function () {
-
-    alert("자장가")
-    alert( $(this).val() )
-    //보낼주소 /order/pk번호/cancel
-    //method post
-    //보낼값 orderId $(this).val()
-
-    $.ajax({
-      url : `/order/${$(this).val()}/cancel`,
-      type : "post" ,
-      success : function (data) {
-        console.log(data)
-        alert("주문이 취소되었습니다. ")
-        location.href = "/orders"
-
-      },
-      error : function (jqXHR,status,error) {
-        if (jqXHR.status == '401'){
-          alert("로그인후 이용하세요")
-          location.href="/user/login" //401 로그인 안되었었을때 로그인 페이지
-
-        }else if (jqXHR.status == '403'){
-          alert(jqXHR.responseText) //에러에 대한 내용출력
-          location.href="/user/login";
-
-        }
-
-      }
-
-    })
-
-  })
-
-
-  </script>
 
 
 
